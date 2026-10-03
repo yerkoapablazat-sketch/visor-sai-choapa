@@ -10,7 +10,8 @@ Visor geoespacial de la calidad de aguas superficiales, aguas subterráneas y se
 - Valor de cada parámetro por campaña, comparado con:
   - **NCh 1333** (requisitos de calidad del agua para riego) y **NCh 409** (agua potable), para aguas;
   - **Guía de Ontario** para calidad de sedimentos acuáticos, para sedimentos.
-- Serie histórica por estación y perfil de cordillera a mar.
+- Serie histórica por estación, perfil de cordillera a mar y **huella de calidad** (estaciones × campañas).
+- Contexto territorial: subcuencas BNA y relieve sombreado.
 - Los valores bajo el límite de detección se muestran como tales (`< LD`), nunca como cero.
 
 ## Aviso
@@ -24,6 +25,8 @@ Versión de consulta. Los datos provienen de la base del programa y están sujet
 | Resultados de aguas y sedimentos | Base de datos del Programa SAI (campañas 2011–2026) |
 | Red hidrográfica | Dirección General de Aguas (DGA) |
 | Localidades de referencia | © colaboradores de OpenStreetMap (ODbL) |
+| Subcuencas | DGA, Clasificación de cuencas hidrográficas de Chile (BNA) |
+| Relieve | Copernicus GLO-30 DEM (ESA / Agencia Espacial Europea) |
 | Coordenadas de estaciones | Programa SAI (UTM 19S, EPSG:32719) |
 
 ## Cómo se actualiza
