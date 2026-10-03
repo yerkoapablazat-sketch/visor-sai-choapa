@@ -31,7 +31,7 @@ Versión de consulta. Los datos provienen de la base del programa y están sujet
 
 ## Cómo se actualiza
 
-El visor es un solo archivo (`index.html`) sin servidor. Se genera con los scripts de la plataforma (`Plataforma_Geoespacial/scripts`, pasos 01 → 02 → 02b → 03) a partir de la base de cada campaña. Para publicar una nueva versión: reemplazar `index.html`, hacer commit y push.
+El visor es un solo archivo (`index.html`) sin servidor. Se genera con los scripts de la plataforma (`Plataforma_Geoespacial/scripts`, pasos 01 → 02 → 02b → 04 → 03) a partir de la base de cada campaña. Para publicar una nueva versión: reemplazar `index.html`, hacer commit y push.
 
 ## Tecnología
 
