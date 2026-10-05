@@ -281,6 +281,33 @@ tbody tr { cursor: pointer; }
 .huella-ley { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); align-items: center; }
 .huella-ley i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
 .notas { padding: 14px 16px; display: grid; gap: 8px; font-size: 13px; color: var(--ink-2); }
+/* boletín de la última campaña */
+.boletin { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.boletin > summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.boletin > summary::-webkit-details-marker { display: none; }
+.boletin > summary h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.boletin > summary span { color: var(--ink-2); font-size: 12.5px; }
+.boletin > summary::after { content: "▾ ocultar"; margin-left: auto; font-size: 12px; color: var(--accent); }
+.boletin:not([open]) > summary::after { content: "▸ ver"; }
+.bol-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.bol-m { border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; display: grid; gap: 8px; align-content: start; background: var(--bg); }
+.bol-m h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.bol-m h3 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.bol-hidro { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.bol-hidro i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; vertical-align: -1px; margin-right: 6px; }
+.bol-sec { display: grid; gap: 3px; }
+.bol-sec h4 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+.bol-sec h4 svg { width: 13px; height: 13px; }
+.bol-sec h4.crit { color: var(--crit); }
+.bol-it { display: block; width: 100%; text-align: left; background: none; border: 0; border-radius: 4px; padding: 3px 4px; font-size: 12.5px;
+  color: var(--ink); cursor: pointer; line-height: 1.35; }
+.bol-it:hover { background: var(--accent-soft); }
+.bol-it b { font-family: var(--f-data); font-weight: 600; font-size: 12px; }
+.bol-it em { font-style: normal; color: var(--muted); }
+.bol-tag { display: inline-block; font-size: 10.5px; padding: 0 5px; border-radius: 999px; border: 1px solid var(--crit); color: var(--crit); margin-left: 4px; }
+.bol-vacio { font-size: 12.5px; color: var(--muted); }
+.bol-mas summary { cursor: pointer; font-size: 12px; color: var(--accent); padding: 2px 4px; }
+.bol-pie { font-size: 12px; color: var(--muted); margin: 0; }
 .notas summary { cursor: pointer; font-weight: 600; color: var(--ink); font-size: 15px; }
 .notas summary span { font-weight: 400; color: var(--muted); font-size: 12.5px; margin-left: 6px; }
 .notas[open] summary { margin-bottom: 8px; }
@@ -323,11 +350,17 @@ tbody tr { cursor: pointer; }
     <div class="prov" id="prov"></div>
   </header>
   <ul class="indice" aria-label="Secciones">
-    <li><a href="#mapa">Mapa y estación</a></li><li><a href="#sec-perfil">Perfil cordillera–mar</a></li>
+    <li><a href="#boletin">Última campaña</a></li><li><a href="#mapa">Mapa y estación</a></li><li><a href="#sec-perfil">Perfil cordillera–mar</a></li>
     <li><a href="#hidro-sec">Caudal y sequía</a></li><li><a href="#riego-sec">Aptitud para riego</a></li>
     <li><a href="#sec-huella">Huella de calidad</a></li><li><a href="#sec-notas">Métodos y notas</a></li>
   </ul>
   <p class="aviso" role="note">Versión de consulta. Los datos provienen de la base del programa y están sujetos a revisión; no reemplazan los informes técnicos oficiales de cada campaña.</p>
+
+  <details class="tarjeta boletin" id="boletin" open>
+    <summary><h2>Qué cambió en la última campaña</h2><span id="bol-sub"></span></summary>
+    <div class="bol-grid" id="bol-grid"></div>
+    <p class="bol-pie">Se compara cada resultado con la norma que aplica en esa estación y con la historia de la propia estación (al menos 8 campañas previas). Un valor fuera de su rango histórico no es necesariamente un problema: es una señal para revisar. Selecciona un elemento para verlo en el mapa.</p>
+  </details>
 
   <section class="filtros" aria-label="Filtros">
     <div class="campo"><span>Matriz</span>
@@ -1063,6 +1096,102 @@ tbody tr { cursor: pointer; }
       : "";
   }
 
+  // ---------- boletín de la última campaña (se calcula con las mismas reglas del visor)
+  const NO_BOLETIN = /^(c[óo]digo lab|id lab|tipo muestra|humedad|materia seca|granulometr|textura|olor|nivel fr|s[óo]lidos totales$)/i;
+  function normaPara(m, p, cod) {   // como normaDe(), para cualquier matriz y parámetro
+    const ne = ((DATA.normasEst || {})[m] || {})[cod], n = Object.assign({}, p.norma || {});
+    if (ne) { for (const x in ne.excluir) delete n[x]; Object.assign(n, (ne.extra || {})[p.k] || {}); }
+    return n;
+  }
+  function superaCon(d, norma) {
+    const sup = [];
+    for (const [nom, [mn, mx]] of Object.entries(norma)) {
+      if (!d.cen) { if ((mx != null && d.v > mx) || (mn != null && d.v < mn)) sup.push(nom); }
+      else if (d.cen === ">" && mx != null && d.lim > mx) sup.push(nom);
+    }
+    return sup;
+  }
+  function boletinMatriz(m) {
+    const mt = DATA.matrices[m], ests = EST.filter(e => e.m === m);
+    let ult = -1;
+    for (const cod in mt.series) for (const k in mt.series[cod]) for (const [ci] of mt.series[cod][k]) ult = Math.max(ult, ci);
+    if (ult < 0) return null;
+    const superan = [], fuera = [];
+    let conDato = new Set();
+    mt.params.forEach((p, pi) => {
+      if (NO_BOLETIN.test(p.k) || NO_BOLETIN.test(p.n)) return;
+      for (const e of ests) {
+        const ser = ((mt.series[e.c] || {})[String(pi)] || []).map(([ci, v]) => [ci, leer(v)]);
+        const act = ser.find(x => x[0] === ult);
+        if (!act) continue;
+        conDato.add(e.c);
+        const d = act[1], norma = normaPara(m, p, e.c), sup = superaCon(d, norma);
+        const previos = ser.filter(x => x[0] < ult);
+        if (sup.length) {
+          const antes = previos.filter(([, x]) => superaCon(x, norma).length).length;
+          const ultPrev = previos.length ? superaCon(previos[previos.length - 1][1], norma).length > 0 : false;
+          superan.push({ m, pi, cod: e.c, d, p, sup, nueva: !ultPrev, primera: antes === 0 });
+        }
+        const num = previos.filter(([, x]) => !x.cen).map(([, x]) => x.v).sort((a, b) => a - b);
+        if (!d.cen && num.length >= 8) {
+          const max = num[num.length - 1], med = num[Math.floor(num.length / 2)];
+          if (d.v > max && d.v > 1.2 * med && d.v > 0) fuera.push({ m, pi, cod: e.c, d, p, max, med, r: d.v / Math.max(max, 1e-9) });
+        }
+      }
+    });
+    superan.sort((a, b) => (b.primera - a.primera) || (b.nueva - a.nueva) || a.cod.localeCompare(b.cod));
+    fuera.sort((a, b) => b.r - a.r);
+    // tendencias de largo plazo en parámetros clave: estaciones que suben (y se mantiene al descontar el caudal)
+    const tend = [];
+    for (const k of (CLAVES[m] || [])) {
+      const pi = mt.params.findIndex(p => p.k === k), tt = ((TEND[m] || {})[k]) || {};
+      if (pi < 0) continue;
+      const suben = Object.entries(tt).filter(([, t]) => t[0] === "s"), aj = suben.filter(([, t]) => t.length >= 10 && t[7] === "s");
+      const evaluadas = Object.keys(tt).length;
+      if (suben.length) tend.push({ m, pi, n: mt.params[pi].n, suben: suben.length, aj: aj.length, conAj: suben.some(([, t]) => t.length >= 10), evaluadas, cods: suben.map(([c]) => c) });
+    }
+    tend.sort((a, b) => b.suben - a.suben);
+    return { ult, superan, fuera, tend, ests: ests.length, conDato: conDato.size };
+  }
+  function irA(m, pi, ci, cod) {
+    if (st.m !== m) { st.m = m; llenarParametros(); llenarCampanas(); encuadrar(); }
+    st.p = pi; st.c = ci; st.sel = cod; render();
+    document.getElementById("mapa").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+  const NOMBRE_M = { "Superficial": "Aguas superficiales", "Subterránea": "Aguas subterráneas", "Sedimento": "Sedimentos" };
+  function boletin() {
+    const grid = document.getElementById("bol-grid"), bloques = [], ultimas = [];
+    const lista = (items, fn, n = 5) => items.length <= n ? items.map(fn).join("")
+      : items.slice(0, n).map(fn).join("") + `<details class="bol-mas"><summary>y ${items.length - n} más</summary>${items.slice(n).map(fn).join("")}</details>`;
+    for (const m of ["Superficial", "Subterránea", "Sedimento"]) {
+      const b = boletinMatriz(m);
+      if (!b) continue;
+      ultimas.push(C[b.ult].et);
+      const cond = (QD.cond || {})[b.ult];
+      const hidro = cond && cond[1] ? `<span class="bol-hidro"><i style="background:var(${COND_VAR[cond[1]]})"></i>Cuenca en condición <b>${cond[1]}</b> (${fmt(cond[2])} m³/s en ${nomDGA(QD.ref)})</span>`
+        : `<span class="bol-hidro"><i style="border:1px solid var(--line)"></i>Sin caudal DGA para esta campaña todavía</span>`;
+      const itSup = x => `<button type="button" class="bol-it" data-go="${x.m}|${x.pi}|${b.ult}|${x.cod}"><b>${x.cod}</b> · ${x.p.n}: ${txtValor(x.d)} ${x.p.u} <em>supera ${x.sup.join(" y ")}</em>${x.primera ? '<span class="bol-tag">primera vez</span>' : x.nueva ? '<span class="bol-tag">nueva</span>' : ""}</button>`;
+      const itFue = x => `<button type="button" class="bol-it" data-go="${x.m}|${x.pi}|${b.ult}|${x.cod}"><b>${x.cod}</b> · ${x.p.n}: ${txtValor(x.d)} ${x.p.u} <em>(máximo previo ${fmt(x.max)}; mediana ${fmt(x.med)})</em></button>`;
+      const itTen = x => `<button type="button" class="bol-it" data-go="${x.m}|${x.pi}|${b.ult}|${x.cods[0]}">${x.n}: sube en <b>${x.suben}</b> de ${x.evaluadas} estaciones${x.conAj ? ` <em>(${x.aj} se mantienen al descontar el caudal)</em>` : ""}</button>`;
+      const nSupNuevas = b.superan.filter(x => x.nueva).length;
+      bloques.push(`<div class="bol-m">
+        <h3>${NOMBRE_M[m]} <small>${C[b.ult].et} · ${b.conDato} de ${b.ests} estaciones</small></h3>
+        ${hidro}
+        <div class="bol-sec"><h4 class="${b.superan.length ? "crit" : ""}">${b.superan.length ? ICON.supera : ICON.cumple}Superan la norma (${b.superan.length}${nSupNuevas ? `; ${nSupNuevas} nuevas respecto de la campaña anterior` : ""})</h4>
+          ${b.superan.length ? lista(b.superan, itSup) : '<p class="bol-vacio">Ningún resultado supera la norma que aplica en su estación.</p>'}</div>
+        <div class="bol-sec"><h4>${ICONT.s}Sobre su máximo histórico (${b.fuera.length})</h4>
+          ${b.fuera.length ? lista(b.fuera, itFue) : '<p class="bol-vacio">Ningún resultado supera el máximo histórico de su estación.</p>'}</div>
+        ${b.tend.length ? `<div class="bol-sec"><h4>${ICONT.s}Tendencias 2011–2026 en parámetros clave</h4>${lista(b.tend, itTen, 3)}</div>` : ""}
+      </div>`);
+    }
+    grid.innerHTML = bloques.join("");
+    document.getElementById("bol-sub").textContent = [...new Set(ultimas)].join(" · ");
+    grid.querySelectorAll("[data-go]").forEach(bt => bt.addEventListener("click", () => {
+      const [m, pi, ci, cod] = bt.dataset.go.split("|"); irA(m, +pi, +ci, cod);
+    }));
+    if (matchMedia("(max-width: 600px)").matches) document.getElementById("boletin").open = false;
+  }
+
   // ---------- parámetros clave (atajos bajo el selector)
   const CLAVES = {
     "Superficial": ["CE (uS/cm)", "pH", "SO4-2", "Cu", "Mo", "Mn", "N- NO3-", "Colif. Fec"],
@@ -1287,9 +1416,9 @@ tbody tr { cursor: pointer; }
   document.getElementById("notas").innerHTML = n.map(x => `<li>${x}</li>`).join("");
 
   // ---------- arranque
-  llenarCampanas(); llenarParametros(); dibujarSubcuencas(); dibujarRios(); encuadrar(); render();
+  llenarCampanas(); llenarParametros(); dibujarSubcuencas(); dibujarRios(); encuadrar(); render(); boletin();
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { ficha(); graficoPerfil(); huella(cortes()); hidro(); riego(); }, 150); });
-  const reTema = () => { fondoTema(); dibujarSubcuencas(); dibujarRios(); render(); };
+  const reTema = () => { fondoTema(); dibujarSubcuencas(); dibujarRios(); render(); boletin(); };
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", reTema);
   new MutationObserver(reTema).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 })();
