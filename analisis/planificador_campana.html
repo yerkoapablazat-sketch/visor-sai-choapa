@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planificador de campaña SAI</title><meta name="description" content="Ruta por día, puntos en faena, frascos y preservantes por punto, plazos de envío al laboratorio y lista de verificación de terreno.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#eef2f1;--surface:#fcfcfb;--ink:#0e1b20;--ink-2:#455559;--muted:#7b8789;--line:#dbe2e1;--axis:#c3c9c7;
+--accent:#017564;--accent-soft:#d8ece5;--crit:#d03b3b;--warn:#c27c0e;--good:#0c7a0c;--censor:#8f989a;
+--q1:#b7d3f6;--q2:#6da7ec;--q3:#2a78d6;--q4:#1c5cab;--q5:#0d366b;
+--s-ok:#2f8f4e;--s-ok-bg:#dcefe2;--s-warn:#b7791f;--s-warn-bg:#f7ead2;--s-bad:#c43d3d;--s-bad-bg:#f7dcdc;--s-na:#8f989a;--s-na-bg:#eceeee;
+--i-marino:#2a4f78;--i-cian:#3cbbea;--i-inia:#017564;--i-lima:#80b535;--i-sol:#f2c12e;
+--f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-data:"IBM Plex Mono",ui-monospace,Consolas,monospace;--r:8px}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0c1214;--surface:#141b1d;--ink:#eaf1f0;--ink-2:#b4c1c1;--muted:#828e8e;
+--line:#243033;--axis:#36423f;--accent:#5cc7a8;--accent-soft:#143a31;--crit:#e66767;--good:#3fb83f;--censor:#77807f;
+--q1:#1c5cab;--q2:#2a78d6;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6;
+--s-ok:#5cc27d;--s-ok-bg:#163424;--s-warn:#e0a84a;--s-warn-bg:#3a2d14;--s-bad:#f07a7a;--s-bad-bg:#3d1c1c;--s-na:#828e8e;--s-na-bg:#1f2729;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0c1214;--surface:#141b1d;--ink:#eaf1f0;--ink-2:#b4c1c1;--muted:#828e8e;--line:#243033;--axis:#36423f;
+--accent:#5cc7a8;--accent-soft:#143a31;--crit:#e66767;--good:#3fb83f;--censor:#77807f;--q1:#1c5cab;--q2:#2a78d6;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6;
+--s-ok:#5cc27d;--s-ok-bg:#163424;--s-warn:#e0a84a;--s-warn-bg:#3a2d14;--s-bad:#f07a7a;--s-bad-bg:#3d1c1c;--s-na:#828e8e;--s-na-bg:#1f2729;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--f-ui)}
+body::before{content:"";display:block;height:5px;background:linear-gradient(90deg,var(--i-marino) 0 20%,var(--i-cian) 20% 40%,var(--i-inia) 40% 60%,var(--i-lima) 60% 80%,var(--i-sol) 80% 100%)}
+.wrap{max-width:1320px;margin:0 auto;padding:22px 16px 48px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px 24px}
+.marca{font:600 11px var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 4px}
+h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--ink-2);max-width:80ch}
+.prov{font:12px/1.4 var(--f-data);color:var(--muted);text-align:right}
+.tarjeta{background:var(--surface);border:1px solid var(--line);border-radius:calc(var(--r) + 2px);padding:16px;min-width:0;
+box-shadow:0 1px 2px rgb(0 0 0/.04),0 4px 14px rgb(0 0 0/.035)}
+.tarjeta h2{margin:0 0 4px;font-size:16px;font-weight:600}
+.tarjeta>p.sub{margin:0 0 12px;color:var(--ink-2);font-size:13px;max-width:110ch}
+.filtros{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}
+.campo{display:grid;gap:4px;min-width:0}
+.campo>span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+select,button,input,textarea{font:inherit;color:var(--ink)}
+select,input[type=text],input[type=number],input[type=date]{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:6px 9px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{background:transparent;border:0;padding:6px 12px;cursor:pointer;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--surface)}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)} .btn.prim{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;font:12px var(--f-data);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--ink-2);background:var(--bg)}
+.estado{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;border-radius:999px;padding:2px 9px;border:1px solid}
+.estado svg{width:13px;height:13px}
+.ok{color:var(--s-ok);border-color:var(--s-ok);background:var(--s-ok-bg)}
+.warn{color:var(--s-warn);border-color:var(--s-warn);background:var(--s-warn-bg)}
+.bad{color:var(--s-bad);border-color:var(--s-bad);background:var(--s-bad-bg)}
+.na{color:var(--s-na);border-color:var(--line);background:var(--s-na-bg)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;background:var(--surface)}
+td.n{font-family:var(--f-data);text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow:auto;max-width:100%}
+.nota{font-size:12px;color:var(--muted);margin:8px 0 0;max-width:120ch}
+.notas{font-size:12.5px;color:var(--ink-2)} .notas li{margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;background:var(--bg);min-width:120px}
+.kpi b{display:block;font:600 20px var(--f-data);font-variant-numeric:tabular-nums} .kpi span{font-size:11.5px;color:var(--muted)}
+.tip{position:fixed;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:12px;box-shadow:0 4px 14px rgb(0 0 0/.15);z-index:9999;max-width:320px}
+svg text{font-family:var(--f-ui)}
+@media print{body::before{display:none}.filtros,.btn{display:none}.tarjeta{box-shadow:none;break-inside:avoid}}
+
+.dia{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:12px 14px;display:grid;gap:8px;break-inside:avoid}
+.dia header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:baseline}.dia h3{margin:0;font-size:15px}
+.pt{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.pt .num{font:600 13px var(--f-data);color:var(--muted);padding-top:2px}
+.pt h4{margin:0;font-size:13.5px;font-weight:600}.pt .meta{font-size:12px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:2px}
+.alertas{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.alertas .estado{font-size:11.5px}
+.chk{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font-size:12px;color:var(--ink-2)}.chk label{display:inline-flex;gap:4px;align-items:center;cursor:pointer}
+.chk input{accent-color:var(--accent)}
+.frasc{font-size:12px;color:var(--ink-2)}
+.prog{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:4px}.prog i{display:block;height:100%;background:var(--accent)}
+.dias{display:grid;gap:12px}
+@media print{.dia{border:1px solid #999}.no-imp{display:none}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div><p class="marca">Programa de Seguimiento Ambiental Integral · Cuenca del Choapa</p><h1>Planificador de campaña SAI</h1><p>Ruta por día, puntos en faena, frascos y preservantes por punto, plazos de envío al laboratorio y lista de verificación de terreno.</p></div>
+<div class="prov">Fuente: base SAI (Base de datos SAI INVIERNO 2026.xlsx)<br>generado 12-10-2026</div></header>
+
+<section class="tarjeta no-imp"><div class="filtros">
+ <label class="campo"><span>Campaña</span><select id="sel-ep"><option value="OTOÑO">Otoño (agua + sedimentos)</option><option value="INVIERNO">Invierno</option><option value="PRIMAVERA">Primavera</option><option value="VERANO">Verano</option></select></label>
+ <label class="campo"><span>Año</span><input type="number" id="ano" min="2026" max="2035" style="width:90px"></label>
+ <label class="campo"><span>Primer día de terreno (lunes)</span><input type="date" id="inicio"></label>
+ <button class="btn" id="imprimir">Imprimir hoja de ruta</button>
+ <button class="btn" id="limpiar">Reiniciar marcas</button>
+</div><div class="kpis" id="kpis" style="margin-top:12px"></div>
+<p class="nota">Ruta base: programación de Otoño 2026 (9 días). Las marcas de la lista quedan guardadas en este navegador, por campaña. Alertas de cobertura: estimadas por altitud; marca «sin cobertura» cuando lo confirmes en terreno.</p></section>
+<div class="grid2" style="grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr)">
+<div class="dias" id="dias"></div>
+<aside style="display:grid;gap:12px;align-content:start">
+<section class="tarjeta"><h2>Antes de salir</h2><div class="chk" id="chk-gral" style="display:grid;gap:4px"></div></section>
+<section class="tarjeta"><h2>Frascos, preservantes y plazos</h2><p class="sub">Por grupo de parámetros (Standard Methods 1060; EPA 40 CFR 136.3). Confirmar con el laboratorio el kit de cada campaña.</p><div class="scroll"><table id="frascos"></table></div></section>
+</aside></div>
+
+</div>
+<script id="datos" type="application/json">{"dias":[{"off":0,"pts":[{"c":"SSR-02","n":"SSR Cuncumén","m":"Subterránea","lat":-31.90728,"lon":-70.62641,"alt":1026,"sc":"Choapa Alto","lab":"CU-S","sed":null,"arr":"CU-A","mlp":true},{"c":"SSR-03","n":"SSR Tranquilla","m":"Subterránea","lat":-31.89441,"lon":-70.68166,"alt":927,"sc":"Choapa Medio","lab":"TQ-P","sed":null,"arr":null,"mlp":false},{"c":"SSR-18","n":"SSR Coiron","m":"Subterránea","lat":-31.90033,"lon":-70.77234,"alt":801,"sc":"Choapa Medio","lab":"CO-P","sed":null,"arr":null,"mlp":false},{"c":"CHO-05","n":"Río Choapa bajo descarga de PTAS Chillepín","m":"Superficial","lat":-31.89756,"lon":-70.77146,"alt":787,"sc":"Choapa Medio","lab":"PTAS","sed":null,"arr":null,"mlp":false}]},{"off":1,"pts":[{"c":"SSR-01","n":"SSR Batuco","m":"Subterránea","lat":-31.95052,"lon":-70.60819,"alt":1164,"sc":"Choapa Alto","lab":"BA-P","sed":null,"arr":"BA-A","mlp":true},{"c":"CHO-01","n":"Río Choapa en Batuco","m":"Superficial","lat":-31.97371,"lon":-70.58831,"alt":1213,"sc":"Choapa Alto","lab":"BA-R","sed":["SED-01","SE-1"],"arr":null,"mlp":true},{"c":"CHO-04","n":"Río Choapa bajo confluencia con río Cuncumén","m":"Superficial","lat":-31.89702,"lon":-70.64464,"alt":978,"sc":"Choapa Alto","lab":"CU-2","sed":["SED-03","SE-3"],"arr":null,"mlp":true}]},{"off":2,"pts":[{"c":"CHO-11","n":"Río Pelambres antes confluencia con río Blanco","m":"Superficial","lat":-31.80325,"lon":-70.54712,"alt":1915,"sc":"Choapa Alto","lab":"PB","sed":null,"arr":null,"mlp":true},{"c":"CHO-10","n":"Río Pelambres antes de confluencia con estero Piuquenes","m":"Superficial","lat":-31.80504,"lon":-70.55258,"alt":1818,"sc":"Choapa Alto","lab":"PP","sed":null,"arr":null,"mlp":true},{"c":"EST-02","n":"Estero Piuquenes","m":"Superficial","lat":-31.79759,"lon":-70.59968,"alt":1745,"sc":"Choapa Alto","lab":"EP","sed":null,"arr":null,"mlp":true},{"c":"CHO-03","n":"Río Cuncumén antes de junta con río Choapa","m":"Superficial","lat":-31.87747,"lon":-70.61651,"alt":1119,"sc":"Choapa Alto","lab":"CU-1","sed":["SED-02","SE-2"],"arr":null,"mlp":true}]},{"off":3,"pts":[{"c":"Pozo-07","n":"ABQ2","m":"Subterránea","lat":-31.8857,"lon":-70.62469,"alt":1073,"sc":"Choapa Alto","lab":"ABQ2","sed":null,"arr":null,"mlp":true},{"c":"Pozo-09","n":"P5","m":"Subterránea","lat":-31.89551,"lon":-70.63933,"alt":1008,"sc":"Choapa Alto","lab":"P5","sed":null,"arr":null,"mlp":true},{"c":"Pozo-08","n":"ABF10","m":"Subterránea","lat":-31.89613,"lon":-70.64346,"alt":984,"sc":"Choapa Alto","lab":"ABF-10","sed":null,"arr":null,"mlp":true}]},{"off":7,"pts":[{"c":"SSR-06","n":"SSR Llimpo","m":"Subterránea","lat":-31.84982,"lon":-70.84687,"alt":667,"sc":"Choapa Medio","lab":"LL-P","sed":null,"arr":null,"mlp":false},{"c":"CHO-06","n":"Río Choapa en Llimpo","m":"Superficial","lat":-31.84982,"lon":-70.84687,"alt":667,"sc":"Choapa Medio","lab":"LLI","sed":null,"arr":null,"mlp":false},{"c":"CHO-07","n":"Río Choapa en Salamanca","m":"Superficial","lat":-31.81483,"lon":-70.93341,"alt":560,"sc":"Choapa Medio","lab":"SA","sed":["SED-04","SE-4"],"arr":null,"mlp":false},{"c":"SSR-16","n":"SSR Jorquera","m":"Subterránea","lat":-31.82712,"lon":-70.88617,"alt":617,"sc":"Choapa Medio","lab":"JO-P","sed":null,"arr":null,"mlp":false}]},{"off":8,"pts":[{"c":"SSR-15","n":"SSR Huentelauquén Norte","m":"Subterránea","lat":-31.58427,"lon":-71.52319,"alt":4,"sc":"Choapa Bajo","lab":"HU-P","sed":null,"arr":null,"mlp":false},{"c":"SSR-14","n":"SSR Mincha Norte","m":"Subterránea","lat":-31.58947,"lon":-71.4389,"alt":40,"sc":"Choapa Bajo","lab":"MN-P","sed":null,"arr":null,"mlp":false},{"c":"CHO-14","n":"Río Choapa antes estero la Canela","m":"Superficial","lat":-31.58688,"lon":-71.46223,"alt":25,"sc":"Choapa Bajo","lab":"EC","sed":["SED-07","SE-8"],"arr":null,"mlp":false},{"c":"CHO-15","n":"Río Choapa en Huentelauquén","m":"Superficial","lat":-31.58978,"lon":-71.53092,"alt":9,"sc":"Choapa Bajo","lab":"HQ","sed":["SED-08",""],"arr":null,"mlp":false}]},{"off":9,"pts":[{"c":"SSR-05","n":"SSR Quelen bajo","m":"Subterránea","lat":-31.86176,"lon":-70.83907,"alt":698,"sc":"Choapa Medio","lab":"QB-P","sed":null,"arr":null,"mlp":false},{"c":"SSR-17","n":"SSR Panguesillo","m":"Subterránea","lat":-31.84034,"lon":-70.85891,"alt":660,"sc":"Choapa Medio","lab":"PA-P","sed":null,"arr":null,"mlp":false},{"c":"Pozo-19","n":"Thomas Davis 2","m":"Subterránea","lat":-31.78657,"lon":-70.96405,"alt":505,"sc":"Choapa Medio","lab":"TD","sed":null,"arr":null,"mlp":false},{"c":"SSR-10","n":"SSR El Tambo","m":"Subterránea","lat":-31.78421,"lon":-71.01672,"alt":452,"sc":"Choapa Medio","lab":"ET-P","sed":null,"arr":null,"mlp":false}]},{"off":10,"pts":[{"c":"CHO-16","n":"Río Choapa en puente Limáhuida","m":"Superficial","lat":-31.74545,"lon":-71.16634,"alt":287,"sc":"Choapa Medio","lab":"LI","sed":null,"arr":null,"mlp":false},{"c":"CHO-12","n":"Río Choapa en puente Negro","m":"Superficial","lat":-31.69094,"lon":-71.26866,"alt":181,"sc":"Choapa Medio","lab":"PN","sed":["SED-05","SE-5"],"arr":null,"mlp":false},{"c":"ILL-13","n":"Río Illapel en puente El Peral","m":"Superficial","lat":-31.66861,"lon":-71.25574,"alt":178,"sc":"Río Illapel","lab":"PE","sed":["SED-06","SE-6"],"arr":null,"mlp":false},{"c":"SSR-12","n":"SSR las Cañas Uno","m":"Subterránea","lat":-31.71972,"lon":-71.23972,"alt":222,"sc":"Choapa Medio","lab":"LC-P","sed":null,"arr":null,"mlp":false}]},{"off":14,"pts":[{"c":"CHO-09","n":"Río Choapa bajo confluencia río Chalinga","m":"Superficial","lat":-31.77998,"lon":-70.98867,"alt":475,"sc":"Choapa Medio","lab":"","sed":null,"arr":null,"mlp":false},{"c":"CHA-08","n":"Río Chalinga antes confluencia con río Choapa","m":"Superficial","lat":-31.77557,"lon":-70.98534,"alt":484,"sc":"Choapa Medio","lab":"","sed":null,"arr":null,"mlp":false},{"c":"SSR-11","n":"SSR Chuchiñi","m":"Subterránea","lat":-31.75701,"lon":-71.0596,"alt":392,"sc":"Choapa Medio","lab":"","sed":null,"arr":null,"mlp":false}]}],"frascos":[["Metales totales","SUP SUB","Plástico 500 mL","HNO₃ a pH < 2; 4 °C",4320,"Al, As, B, Cd, Cu, Fe, Mn, Mo, Ni, Pb, Zn y otros"],["Mercurio","SUP SUB","Plástico o vidrio 250 mL","HNO₃ a pH < 2; 4 °C",672,"Hg"],["Cromo hexavalente","SUP SUB","Plástico 250 mL","4 °C, sin preservante",24,"Cr VI"],["Aniones y sales","SUP SUB","Plástico 1 L","4 °C, sin preservante",672,"Cl, SO₄, F, CE, STD, dureza"],["Alcalinidad","SUP SUB","Plástico 250 mL (lleno, sin aire)","4 °C",336,"HCO₃, CO₃, alcalinidad"],["Nitrato y nitrito","SUP SUB","Plástico 250 mL","4 °C (sin preservante)",48,"NO₃, NO₂"],["Nutrientes preservados","SUP SUB","Plástico 250 mL","H₂SO₄ a pH < 2; 4 °C",672,"NH₄, NKJ, N total, P total, DQO"],["DBO₅","SUP SUB","Plástico 1 L","4 °C",48,"DBO₅"],["Coliformes","SUP SUB AP","Frasco estéril 250 mL con tiosulfato","< 10 °C, sin abrir",8,"Coliformes totales y fecales"],["Cianuro","SUP","Plástico 500 mL","NaOH a pH > 12; 4 °C",336,"CN"],["Sulfuro","SUP SUB","Plástico 250 mL","Acetato de zinc + NaOH; 4 °C",168,"S²⁻"],["Aceites, grasas e hidrocarburos","SUP","Vidrio ámbar 1 L","HCl o H₂SO₄ a pH < 2; 4 °C",672,"Aceites y grasas, hidrocarburos"],["Compuestos fenólicos","SUB","Vidrio ámbar 1 L","H₂SO₄ a pH < 2; 4 °C",672,"Fenoles"],["Agua potable (arranque)","AP","Plástico 1 L + frasco estéril","4 °C",8,"Coliformes y parámetros NCh 409"],["Sedimento: metales y salinidad","SED","Bolsa o frasco plástico 1 kg","4 °C",4320,"Metales, materia orgánica, granulometría"],["Sedimento: hidrocarburos","SED","Vidrio ámbar boca ancha 250 g","4 °C",336,"Hidrocarburos, aceites y grasas"]]}</script>
+<script>
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmtN=new Intl.NumberFormat("es-CL",{maximumSignificantDigits:3});
+const fmt=v=>(v==null||isNaN(v))?"—":fmtN.format(v);
+const NS="http://www.w3.org/2000/svg";
+function svgEl(t,a,p){const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);if(p)p.appendChild(n);return n}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ICON={ok:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m5 8.2 2 2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+bad:'<svg viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 6v4M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+warn:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.5v4.5M8 11v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+na:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.5 2"/></svg>'};
+const tipEl=document.createElement("div");tipEl.className="tip";tipEl.hidden=true;document.body.appendChild(tipEl);
+function tip(ev,html){if(!html){tipEl.hidden=true;return}tipEl.innerHTML=html;tipEl.hidden=false;const x=Math.min(ev.clientX+14,innerWidth-tipEl.offsetWidth-8),y=Math.min(ev.clientY+14,innerHeight-tipEl.offsetHeight-8);tipEl.style.left=x+"px";tipEl.style.top=y+"px"}
+
+const DATA=JSON.parse(document.getElementById("datos").textContent);
+
+const DIAS=DATA.dias,F=DATA.frascos;const KEY=()=>`sai-plan-${document.getElementById("sel-ep").value}-${document.getElementById("ano").value}`;
+let marcas={};const cargar=()=>{try{marcas=JSON.parse(localStorage.getItem(KEY())||"{}")}catch(e){marcas={}}};const guardar=()=>{try{localStorage.setItem(KEY(),JSON.stringify(marcas))}catch(e){}};
+const MAT={"Superficial":"SUP","Subterránea":"SUB"};
+const fmtF=d=>d.toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"});
+function frascosDe(p,otono){const m=MAT[p.m],g=F.filter(f=>f[1].split(" ").includes(m));const extra=[];if(p.arr)extra.push(...F.filter(f=>f[1].split(" ").includes("AP")&&f[0]==="Agua potable (arranque)"));if(otono&&p.sed)extra.push(...F.filter(f=>f[1].includes("SED")));return[...g,...extra]}
+const ITEMS=["pH","CE","T°","OD","Foto","GPS","Cadena de custodia"];
+function render(){cargar();const otono=document.getElementById("sel-ep").value==="OTOÑO";const ini=new Date(document.getElementById("inicio").value+"T08:00");
+ let tot=0,hechos=0,nFr=0;const cont=document.getElementById("dias");
+ cont.innerHTML=DIAS.map((d,i)=>{const f=new Date(ini.getTime()+d.off*864e5),limCol=new Date(f.getTime()+8*36e5);
+  const pts=d.pts.map((p,j)=>{const fr=frascosDe(p,otono);nFr+=fr.length;const cks=ITEMS.map(it=>{const k=`${p.c}|${it}`;tot++;if(marcas[k])hechos++;return`<label><input type="checkbox" data-k="${k}" ${marcas[k]?"checked":""}>${it}</label>`}).join("");
+   const sc=`${p.c}|sin cobertura`;const al=[];if(p.mlp)al.push(`<span class="estado warn">${ICON.warn}Faena MLP: coordinar acceso, inducción y EPP minero</span>`);if((p.alt||0)>1500)al.push(`<span class="estado na">${ICON.na}Sobre 1.500 m: verificar cobertura y camino</span>`);
+   if(marcas[sc])al.push(`<span class="estado bad">${ICON.bad}Sin cobertura confirmada: llevar radio o comunicador satelital</span>`);if(p.arr)al.push(`<span class="estado na">${ICON.na}Incluye arranque de agua potable (${p.arr})</span>`);
+   if(otono&&p.sed)al.push(`<span class="estado na">${ICON.na}Sedimento ${p.sed[0]}${p.sed[1]?" ("+p.sed[1]+")":""}</span>`);
+   return `<div class="pt"><span class="num">${j+1}</span><div><h4>${esc(p.n)}</h4><div class="meta"><span class="chip">${p.c}</span>${p.lab?`<span>Lab: <b>${p.lab}</b></span>`:""}<span>${p.m}</span><span>${p.alt!=null?p.alt.toLocaleString("es-CL")+" m":""}</span><a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" rel="noopener">${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}</a></div>
+    <div class="alertas">${al.join("")}</div><div class="frasc">${fr.length} envases: ${fr.map(x=>x[0]).join(" · ")}</div><div class="chk">${cks}<label><input type="checkbox" data-k="${sc}" ${marcas[sc]?"checked":""}>sin cobertura</label></div></div></div>`}).join("");
+  return `<section class="dia"><header><h3>Día ${i+1} · ${isNaN(f)?"—":fmtF(f)}</h3><span class="nota" style="margin:0">${d.pts.length} puntos · enviar coliformes al laboratorio antes de las ${isNaN(f)?"—":limCol.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})} si el primer muestreo es a las 8:00</span></header>${pts}</section>`}).join("");
+ const pct=tot?Math.round(100*hechos/tot):0;
+ document.getElementById("kpis").innerHTML=`<div class="kpi"><b>${DIAS.length}</b><span>días de terreno</span></div><div class="kpi"><b>${DIAS.reduce((a,d)=>a+d.pts.length,0)}</b><span>puntos de muestreo</span></div><div class="kpi"><b>${nFr}</b><span>envases (sin duplicados ni blancos)</span></div><div class="kpi"><b>${DIAS.reduce((a,d)=>a+d.pts.filter(p=>p.mlp).length,0)}</b><span>puntos en faena MLP</span></div><div class="kpi"><b>${pct} %</b><span>de la lista completada</span><div class="prog"><i style="width:${pct}%"></i></div></div>`;
+ cont.querySelectorAll("input[data-k]").forEach(c=>c.addEventListener("change",()=>{marcas[c.dataset.k]=c.checked;guardar();if(c.dataset.k.endsWith("sin cobertura"))render();else{const t=document.querySelectorAll("#dias input[data-k]:not([data-k$='cobertura'])"),h=[...t].filter(x=>x.checked).length;document.querySelector(".kpi .prog i").style.width=(100*h/t.length)+"%"}}));
+ const GR=["Multiparámetro calibrado (pH 4/7/10, CE)","Oxímetro calibrado","GPS y cámara con batería","Cooler con unidades refrigerantes (4 °C)","Kit de frascos y preservantes del laboratorio","Etiquetas y plumón indeleble","Formularios de cadena de custodia","Guantes de nitrilo y agua desionizada","Draga o pala de acero inoxidable (otoño: sedimentos)","Duplicado de campo y blanco de viaje (recomendado SAI IV)","EPP minero y documentos para faena MLP","Botiquín, extintor y plan de ruta informado","Radio o comunicador satelital para zonas sin cobertura","Revisar caudales DGA y alertas de crecida antes de salir"];
+ document.getElementById("chk-gral").innerHTML=GR.map((g,i)=>{const k=`gral|${i}`;return`<label><input type="checkbox" data-g="${k}" ${marcas[k]?"checked":""}>${esc(g)}</label>`}).join("");
+ document.querySelectorAll("#chk-gral input").forEach(c=>c.addEventListener("change",()=>{marcas[c.dataset.g]=c.checked;guardar()}));
+ document.getElementById("frascos").innerHTML=`<thead><tr><th>Grupo</th><th>Envase</th><th>Preservación</th><th>Plazo máximo</th></tr></thead><tbody>`+F.map(f=>`<tr><td><b>${esc(f[0])}</b><br><span style="color:var(--muted)">${esc(f[5])}</span></td><td>${esc(f[2])}</td><td>${esc(f[3])}</td><td class="n" style="${f[4]<=24?"color:var(--s-bad);font-weight:600":""}">${f[4]>=720?Math.round(f[4]/720)+" meses":f[4]>=48?Math.round(f[4]/24)+" días":f[4]+" h"}</td></tr>`).join("")+"</tbody>"}
+function lunesDe(ep,ano){const mes={"OTOÑO":4,"INVIERNO":7,"PRIMAVERA":10,"VERANO":0}[ep];const d=new Date(ano,mes,1);while(d.getDay()!==1)d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)}
+const ahora=new Date();document.getElementById("ano").value=ahora.getFullYear()+(ahora.getMonth()>9?1:0);
+const mesEp=m=>m<=2?"VERANO":m<=5?"OTOÑO":m<=8?"INVIERNO":"PRIMAVERA";document.getElementById("sel-ep").value=mesEp(ahora.getMonth()+1>11?0:ahora.getMonth()+1);
+const fijarInicio=()=>{document.getElementById("inicio").value=lunesDe(document.getElementById("sel-ep").value,+document.getElementById("ano").value);render()};
+document.getElementById("sel-ep").addEventListener("change",fijarInicio);document.getElementById("ano").addEventListener("change",fijarInicio);document.getElementById("inicio").addEventListener("change",render);
+document.getElementById("imprimir").addEventListener("click",()=>window.print());
+document.getElementById("limpiar").addEventListener("click",()=>{if(confirm("¿Borrar todas las marcas de esta campaña?")){marcas={};guardar();render()}});
+fijarInicio();
+
+</script></body></html>
