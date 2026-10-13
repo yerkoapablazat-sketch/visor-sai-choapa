@@ -1,21 +1,21 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Diagnóstico de sedimentos SAI</title><meta name="description" content="Geoacumulación (Igeo), carga contaminante (PLI), riesgo ecológico (Håkanson) y umbrales de efecto TEC/PEC en los sedimentos fluviales del Choapa.">
+<title>Diagnóstico de sedimentos SAI</title><script>try{document.documentElement.dataset.theme=localStorage.getItem("sai-tema")||"light"}catch(e){document.documentElement.dataset.theme="light"}</script><meta name="description" content="Geoacumulación (Igeo), carga contaminante (PLI), riesgo ecológico (Håkanson) y umbrales de efecto TEC/PEC en los sedimentos fluviales del Choapa.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-:root{--bg:#eef2f1;--surface:#fcfcfb;--ink:#0e1b20;--ink-2:#455559;--muted:#7b8789;--line:#dbe2e1;--axis:#c3c9c7;
---accent:#017564;--accent-soft:#d8ece5;--crit:#d03b3b;--warn:#c27c0e;--good:#0c7a0c;--censor:#8f989a;
+:root{--bg:#f2f6f9;--surface:#ffffff;--ink:#13202b;--ink-2:#46596a;--muted:#7b8789;--line:#dce5ec;--axis:#c3ced8;
+--accent:#017564;--accent-soft:#dcefe9;--crit:#d03b3b;--warn:#c27c0e;--good:#0c7a0c;--censor:#8f989a;
 --q1:#b7d3f6;--q2:#6da7ec;--q3:#2a78d6;--q4:#1c5cab;--q5:#0d366b;
 --s-ok:#2f8f4e;--s-ok-bg:#dcefe2;--s-warn:#b7791f;--s-warn-bg:#f7ead2;--s-bad:#c43d3d;--s-bad-bg:#f7dcdc;--s-na:#8f989a;--s-na-bg:#eceeee;
 --i-marino:#2a4f78;--i-cian:#3cbbea;--i-inia:#017564;--i-lima:#80b535;--i-sol:#f2c12e;
 --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-data:"IBM Plex Mono",ui-monospace,Consolas,monospace;--r:8px}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0c1214;--surface:#141b1d;--ink:#eaf1f0;--ink-2:#b4c1c1;--muted:#828e8e;
---line:#243033;--axis:#36423f;--accent:#5cc7a8;--accent-soft:#143a31;--crit:#e66767;--good:#3fb83f;--censor:#77807f;
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1724;--surface:#172233;--ink:#e9eef5;--ink-2:#b2bfcf;--muted:#8391a3;
+--line:#263449;--axis:#35465f;--accent:#5cc7a8;--accent-soft:#16384a;--crit:#e66767;--good:#3fb83f;--censor:#77807f;
 --q1:#1c5cab;--q2:#2a78d6;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6;
 --s-ok:#5cc27d;--s-ok-bg:#163424;--s-warn:#e0a84a;--s-warn-bg:#3a2d14;--s-bad:#f07a7a;--s-bad-bg:#3d1c1c;--s-na:#828e8e;--s-na-bg:#1f2729;color-scheme:dark}}
-:root[data-theme=dark]{--bg:#0c1214;--surface:#141b1d;--ink:#eaf1f0;--ink-2:#b4c1c1;--muted:#828e8e;--line:#243033;--axis:#36423f;
---accent:#5cc7a8;--accent-soft:#143a31;--crit:#e66767;--good:#3fb83f;--censor:#77807f;--q1:#1c5cab;--q2:#2a78d6;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6;
+:root[data-theme=dark]{--bg:#0f1724;--surface:#172233;--ink:#e9eef5;--ink-2:#b2bfcf;--muted:#8391a3;--line:#263449;--axis:#35465f;
+--accent:#5cc7a8;--accent-soft:#16384a;--crit:#e66767;--good:#3fb83f;--censor:#77807f;--q1:#1c5cab;--q2:#2a78d6;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6;
 --s-ok:#5cc27d;--s-ok-bg:#163424;--s-warn:#e0a84a;--s-warn-bg:#3a2d14;--s-bad:#f07a7a;--s-bad-bg:#3d1c1c;--s-na:#828e8e;--s-na-bg:#1f2729;color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
